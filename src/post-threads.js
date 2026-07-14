@@ -22,9 +22,10 @@ const HOST_ONLY = process.argv.includes('--host-only');
 const argRec = process.argv.includes('--record') ? process.argv[process.argv.indexOf('--record') + 1] : '';
 const ONLY_REC = (process.env.RECORD_ID || argRec || '').trim();
 
-const F = { content: 'Nội dung', type: 'Loại', mediaAtt: 'Ảnh/video', mediaUrl: 'Ảnh URL (công khai)',
+const F = { content: 'Nội dung', type: 'Loại', comment: 'Comment ebook', mediaAtt: 'Ảnh/video', mediaUrl: 'Ảnh URL (công khai)',
             schedule: 'Lịch đăng bài', status: 'Trạng thái', linkPost: 'Link bài đăng', postId: 'Threads post ID',
             log: 'Log', postedAt: 'Đăng lúc' };
+const seenComments = new Set(); // comment PHẢI khác nhau từng dòng (Threads chặn reply trùng)
 const DONE = 'Thành công', FAIL = 'Thất bại';
 const now = () => new Date().toISOString().replace('T', ' ').slice(0, 19);
 const log = (...a) => console.log(now(), ...a);
@@ -81,6 +82,12 @@ async function publish(uid, tok, cid) {
 async function permalink(mediaId, tok) {
   try { const j = await thFetch(`${TH}/${mediaId}`, { fields: 'permalink', access_token: tok }, 'GET'); return j.permalink || ''; }
   catch { return ''; }
+}
+// Comment đầu = reply TEXT vào chính bài (giống "Comment ebook" của 14.3).
+async function postReply(uid, tok, replyToId, text) {
+  const cont = await thFetch(`${TH}/${uid}/threads`, { media_type: 'TEXT', text: text.slice(0, 500), reply_to_id: replyToId, access_token: tok }, 'POST');
+  if (!cont.id) throw new Error('không tạo được reply container');
+  return publish(uid, tok, cont.id);
 }
 function scheduleMs(cell) {
   if (cell == null) return null; if (typeof cell === 'number') return cell;
@@ -145,12 +152,24 @@ function scheduleMs(cell) {
       if (kind !== 'TEXT') await waitReady(cid, cfg.TH_TOKEN);
       const mediaId = await publish(uid, cfg.TH_TOKEN, cid);
       const link = await permalink(mediaId, cfg.TH_TOKEN);
+      // Comment đầu (reply) — nội dung PHẢI khác nhau từng dòng, tránh Threads chặn spam.
+      let cmtNote = '';
+      const commentText = plain(row.fields[F.comment]).trim();
+      if (commentText) {
+        const key = commentText.toLowerCase();
+        if (seenComments.has(key)) { cmtNote = ' (⚠ comment TRÙNG — bỏ qua)'; log(`     ⚠ comment trùng dòng trước, KHÔNG đăng comment.`); }
+        else {
+          seenComments.add(key);
+          try { await postReply(uid, cfg.TH_TOKEN, mediaId, commentText); cmtNote = ' +cmt'; }
+          catch (e) { cmtNote = ' (cmt lỗi)'; log(`     ! comment lỗi: ${String(e.message || e).slice(0, 120)}`); }
+        }
+      }
       await L.updateRow(tk, tid, recId, {
         [F.status]: DONE, [F.postId]: String(mediaId), [F.postedAt]: Date.now(),
         [F.linkPost]: link ? { link, text: 'Xem trên Threads' } : undefined,
-        [F.log]: `${now()} - OK - ${mediaId}`,
+        [F.log]: `${now()} - OK - ${mediaId}${cmtNote}`,
       });
-      log(`     ✔ ĐÃ ĐĂNG: ${link || mediaId}`); ok++;
+      log(`     ✔ ĐÃ ĐĂNG: ${link || mediaId}${cmtNote}`); ok++;
     } catch (e) {
       const msg = String(e.message || e).slice(0, 300); log(`     ✖ LỖI: ${msg}`);
       try { await L.updateRow(tk, tid, recId, { [F.status]: FAIL, [F.log]: `${now()} - LỖI - ${msg}` }); } catch {}

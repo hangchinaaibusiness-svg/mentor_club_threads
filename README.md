@@ -22,9 +22,10 @@ Chạy **cloud** thì không cần máy: chỉ đặt Vars/Secrets rồi bấm w
 
 | Cột | Kiểu | Ý nghĩa |
 |---|---|---|
-| Nội dung | Text (primary) | Nội dung bài, ≤ 500 ký tự |
-| STT | Text | Số thứ tự (giống 14.3) |
+| STT | Text (primary) | Số thứ tự — cột khoá đầu (giống 14.3) |
 | Loại | Single select | Text / Ảnh / Video (trống = tự đoán) |
+| Nội dung | Text | Nội dung bài, ≤ 500 ký tự |
+| Comment ebook | Text | Comment đầu tự động (reply vào bài). ⚠️ PHẢI khác nhau từng dòng — tránh Threads chặn spam |
 | Ảnh/video | Attachment | **Thả file thẳng vào đây** — tự host ra URL công khai |
 | Ảnh URL (công khai) | URL | Hoặc dán sẵn link công khai |
 | Lịch đăng bài | DateTime | Trống hoặc tới giờ mới đăng |
