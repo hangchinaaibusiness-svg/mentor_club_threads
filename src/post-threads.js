@@ -119,7 +119,9 @@ function scheduleMs(cell) {
   let ok = 0, err = 0, wait = 0, skip = 0;
   for (const row of rows) {
     const recId = row.record_id;
-    if (plain(row.fields[F.status]) === DONE) { skip++; continue; }
+    // LUÔN DUYỆT: chỉ đăng dòng "Chờ đăng" (đã được người duyệt). Trạng thái khác đều bỏ qua.
+    const st = plain(row.fields[F.status]).trim();
+    if (st !== 'Chờ đăng') { skip++; if (ONLY_REC) log(`  [BỎ QUA] ${recId}: Trạng thái="${st || '(trống)'}" ≠ "Chờ đăng" → duyệt rồi mới đăng.`); continue; }
     const text = plain(row.fields[F.content]).trim();
     const loai = plain(row.fields[F.type]).trim();
     const atts = Array.isArray(row.fields[F.mediaAtt]) ? row.fields[F.mediaAtt] : [];

@@ -11,7 +11,7 @@
     { "field_name": "Ảnh/video", "type": 17, "desc": "Thả file thẳng vào — tự host ra URL công khai." },
     { "field_name": "Ảnh URL (công khai)", "type": 15, "desc": "Hoặc dán sẵn link công khai." },
     { "field_name": "Lịch đăng bài", "type": 5 },
-    { "field_name": "Trạng thái", "type": 3, "options": ["Chờ đăng", "Thành công", "Thất bại"] },
+    { "field_name": "Trạng thái", "type": 3, "options": ["Ý tưởng", "Nháp AI", "Chờ duyệt", "Chờ đăng", "Thành công", "Thất bại"], "desc": "Pipeline duyệt. CHỈ dòng 'Chờ đăng' (đã được người duyệt) mới được đăng — luật LUÔN DUYỆT." },
     { "field_name": "Log", "type": 1 },
     { "field_name": "Link bài đăng", "type": 15 },
     { "field_name": "Threads post ID", "type": 1 },
