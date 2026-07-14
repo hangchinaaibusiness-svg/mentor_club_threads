@@ -1,20 +1,19 @@
 {
   "table_name": "14.7 Đăng Threads (Meta)",
   "default_view_name": "Hàng chờ đăng",
-  "primary_field": "Nội dung",
-  "note": "Schema bảng đăng Threads, sắp theo cấu trúc bảng 14.3 Đăng bài tự động. type: 1=Text, 3=SingleSelect, 5=DateTime, 15=URL, 17=Attachment, 20=Formula. Cột nút 'Đăng' (Button, type 3001) KHÔNG tạo được qua API — thêm tay trong UI rồi trỏ automation gọi dispatch với record_id.",
-  "button_field_note": "Thêm tay 1 cột Button tên 'Đăng' → khi bấm gọi HTTP dispatch dang-threads với client_payload.record_id = {Record ID}.",
+  "primary_field": "STT",
+  "note": "Schema bảng đăng Threads, THỨ TỰ CỘT khớp bảng 14.3 Đăng bài tự động (STT là cột khoá đầu). type: 1=Text, 3=SingleSelect, 5=DateTime, 15=URL, 17=Attachment, 20=Formula. Cột nút 'Đăng' (Button, type 3001) KHÔNG tạo được qua API — thêm tay trong UI sau cột 'Lịch đăng bài', trỏ automation gọi dispatch với record_id.",
   "fields": [
-    { "field_name": "Nội dung", "type": 1, "desc": "Nội dung bài (<=500 ký tự). Cột chính (primary)." },
-    { "field_name": "STT", "type": 1, "desc": "Số thứ tự (giống 14.3)." },
+    { "field_name": "STT", "type": 1, "desc": "Cột khoá đầu (primary), giống 14.3." },
     { "field_name": "Loại", "type": 3, "options": ["Text", "Ảnh", "Video"] },
+    { "field_name": "Nội dung", "type": 1, "desc": "Nội dung bài (<=500 ký tự)." },
     { "field_name": "Ảnh/video", "type": 17, "desc": "Thả file thẳng vào — tự host ra URL công khai." },
     { "field_name": "Ảnh URL (công khai)", "type": 15, "desc": "Hoặc dán sẵn link công khai." },
     { "field_name": "Lịch đăng bài", "type": 5 },
     { "field_name": "Trạng thái", "type": 3, "options": ["Chờ đăng", "Thành công", "Thất bại"] },
+    { "field_name": "Log", "type": 1 },
     { "field_name": "Link bài đăng", "type": 15 },
     { "field_name": "Threads post ID", "type": 1 },
-    { "field_name": "Log", "type": 1 },
     { "field_name": "Đăng lúc", "type": 5 },
     { "field_name": "Record ID", "type": 20, "formula": "RECORD_ID()", "desc": "Giống 14.3 — cấp record_id cho nút Đăng." }
   ]
