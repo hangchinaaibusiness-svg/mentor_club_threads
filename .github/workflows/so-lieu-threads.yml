@@ -1,0 +1,28 @@
+name: so-lieu-threads
+# Kéo số liệu Threads về bảng 14.7 (CHỈ ĐỌC + ghi số, KHÔNG đăng — an toàn chạy theo lịch).
+# Chạy tay, theo lịch, hoặc gọi HTTP repository_dispatch {"event_type":"so-lieu-threads"}.
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [so-lieu-threads]
+  # Bật lịch kéo số liệu (an toàn vì read-only). Ví dụ 02:00 & 13:00 UTC = 09:00 & 20:00 giờ VN.
+  # schedule:
+  #   - cron: '0 2,13 * * *'
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Kéo số liệu
+        run: node src/pull-insights.js
+        env:
+          LARK_APP_ID: ${{ vars.LARK_APP_ID }}
+          LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
+          LARK_BASE_ID: ${{ vars.LARK_BASE_ID }}
+          LARK_DOMAIN: ${{ vars.LARK_DOMAIN }}
+          THREADS_TABLE_NAME: ${{ vars.THREADS_TABLE_NAME }}
+          THREADS_TABLE_ID: ${{ vars.THREADS_TABLE_ID }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
