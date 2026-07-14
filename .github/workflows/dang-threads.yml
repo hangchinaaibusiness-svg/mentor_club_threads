@@ -4,6 +4,10 @@ name: dang-threads
 on:
   workflow_dispatch:
     inputs:
+      record_id:
+        description: 'record_id 1 dòng cần đăng (trống = đăng tất cả dòng Chờ đăng)'
+        type: string
+        default: ''
       dry_run:
         description: 'Chỉ liệt kê, không đăng'
         type: boolean
@@ -24,6 +28,7 @@ jobs:
       - name: Đăng Threads
         run: node src/post-threads.js ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
         env:
+          RECORD_ID: ${{ github.event.client_payload.record_id || inputs.record_id }}
           LARK_APP_ID: ${{ vars.LARK_APP_ID }}
           LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
           LARK_BASE_ID: ${{ vars.LARK_BASE_ID }}

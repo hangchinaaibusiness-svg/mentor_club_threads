@@ -18,6 +18,9 @@ const cfg = L.cfg;
 const TH = `https://graph.threads.net/${cfg.TH_VER}`;
 const DRY = process.argv.includes('--dry-run');
 const HOST_ONLY = process.argv.includes('--host-only');
+// Nút bấm 1 dòng: đăng ĐÚNG record này (bỏ qua canh giờ). Lấy từ env RECORD_ID hoặc --record <id>.
+const argRec = process.argv.includes('--record') ? process.argv[process.argv.indexOf('--record') + 1] : '';
+const ONLY_REC = (process.env.RECORD_ID || argRec || '').trim();
 
 const F = { content: 'Nội dung', type: 'Loại', mediaAtt: 'Ảnh/video (Lark)', mediaUrl: 'Ảnh URL (công khai)',
             schedule: 'Lịch đăng', status: 'Trạng thái', linkPost: 'Link bài đăng', postId: 'Threads post ID',
@@ -92,8 +95,15 @@ function scheduleMs(cell) {
   const tk = await L.token();
   const tid = cfg.TABLE_ID || await L.findTableByName(tk, cfg.TABLE_NAME);
   if (!tid) throw new Error(`Không thấy bảng "${cfg.TABLE_NAME}" trong Base — chạy init-tables trước.`);
-  const rows = await L.listRecords(tk, tid);
-  log(`Đọc ${rows.length} dòng từ bảng ${cfg.TABLE_NAME} (${tid}).` + (HOST_ONLY ? ' [HOST-ONLY]' : DRY ? ' [DRY-RUN]' : ''));
+  let rows;
+  if (ONLY_REC) {
+    const rec = await L.getRecord(tk, tid, ONLY_REC);
+    rows = rec ? [rec] : [];
+    log(`Đăng 1 dòng theo record_id=${ONLY_REC} (bỏ qua canh giờ).` + (HOST_ONLY ? ' [HOST-ONLY]' : DRY ? ' [DRY-RUN]' : ''));
+  } else {
+    rows = await L.listRecords(tk, tid);
+    log(`Đọc ${rows.length} dòng từ bảng ${cfg.TABLE_NAME} (${tid}).` + (HOST_ONLY ? ' [HOST-ONLY]' : DRY ? ' [DRY-RUN]' : ''));
+  }
 
   let uid = '';
   if (!DRY && !HOST_ONLY) uid = await threadsUserId(cfg.TH_TOKEN);
@@ -109,7 +119,7 @@ function scheduleMs(cell) {
     const urlCell = plain(row.fields[F.mediaUrl]).trim();
     const hasMedia = atts.length > 0 || !!urlCell;
     if (!text && !hasMedia) { skip++; continue; }
-    if (cfg.RESPECT_SCHEDULE) { const s = scheduleMs(row.fields[F.schedule]); if (s && s > nowMs) { log(`  [CHỜ GIỜ] ${recId}: ${new Date(s).toISOString().slice(0, 16)}`); wait++; continue; } }
+    if (cfg.RESPECT_SCHEDULE && !ONLY_REC) { const s = scheduleMs(row.fields[F.schedule]); if (s && s > nowMs) { log(`  [CHỜ GIỜ] ${recId}: ${new Date(s).toISOString().slice(0, 16)}`); wait++; continue; } }
 
     let kind = /video/i.test(loai) ? 'VIDEO' : /ảnh|hình|image|photo/i.test(loai) ? 'IMAGE'
       : hasMedia ? (atts.some(isVid) ? 'VIDEO' : 'IMAGE') : 'TEXT';

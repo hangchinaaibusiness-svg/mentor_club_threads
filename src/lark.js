@@ -64,6 +64,11 @@ async function listRecords(tk, tableId) {
   } while (pt);
   return items;
 }
+async function getRecord(tk, tableId, recId) {
+  const j = await api(tk, 'GET', `/bitable/v1/apps/${cfg.BASE_ID}/tables/${tableId}/records/${recId}`);
+  if (j.code !== 0) throw new Error('getRecord ' + recId + ': ' + JSON.stringify(j));
+  return j.data.record; // { record_id, fields }
+}
 async function updateRow(tk, tableId, recId, fields) {
   const j = await api(tk, 'PUT', `/bitable/v1/apps/${cfg.BASE_ID}/tables/${tableId}/records/${recId}`, { fields });
   if (j.code !== 0) throw new Error('updateRow: ' + JSON.stringify(j));
@@ -96,5 +101,5 @@ const plain = v => v == null ? '' : typeof v === 'string' ? v
 
 module.exports = {
   cfg, token, api, listTables, findTableByName, listFields, createTable, createField,
-  listRecords, updateRow, downloadMedia, fieldPayload, plain,
+  listRecords, getRecord, updateRow, downloadMedia, fieldPayload, plain,
 };
