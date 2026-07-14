@@ -1,0 +1,38 @@
+name: dang-threads
+# Đăng các dòng "Chờ đăng" trong bảng 14.7 lên Threads.
+# Chạy tay (Actions -> Run workflow), theo lịch (cron), hoặc gọi HTTP repository_dispatch {"event_type":"dang-threads"} (nút Đăng trong Lark).
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Chỉ liệt kê, không đăng'
+        type: boolean
+        default: false
+  repository_dispatch:
+    types: [dang-threads]
+  # Bật lịch tự động (giờ UTC). Ví dụ 01:00 & 12:00 UTC = 08:00 & 19:00 giờ VN.
+  # schedule:
+  #   - cron: '0 1,12 * * *'
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Đăng Threads
+        run: node src/post-threads.js ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}
+        env:
+          LARK_APP_ID: ${{ vars.LARK_APP_ID }}
+          LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
+          LARK_BASE_ID: ${{ vars.LARK_BASE_ID }}
+          LARK_DOMAIN: ${{ vars.LARK_DOMAIN }}
+          THREADS_TABLE_NAME: ${{ vars.THREADS_TABLE_NAME }}
+          THREADS_TABLE_ID: ${{ vars.THREADS_TABLE_ID }}
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ vars.THREADS_USER_ID }}
+          THREADS_MEDIA_BASE_URL: ${{ vars.THREADS_MEDIA_BASE_URL }}
+          HANGCHINA_FTP_HOST: ${{ secrets.HANGCHINA_FTP_HOST }}
+          HANGCHINA_FTP_USER: ${{ secrets.HANGCHINA_FTP_USER }}
+          HANGCHINA_FTP_PASS: ${{ secrets.HANGCHINA_FTP_PASS }}

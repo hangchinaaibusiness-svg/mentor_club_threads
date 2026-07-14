@@ -1,0 +1,15 @@
+{
+  "name": "mentor-club-threads",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Đăng bài Threads (Meta) từ Lark Base — chạy trên GitHub Actions, gọi được qua HTTP để làm nút Đăng trong Lark.",
+  "type": "commonjs",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "init": "node src/init-tables.js",
+    "post": "node src/post-threads.js",
+    "post:dry": "node src/post-threads.js --dry-run",
+    "post:host-only": "node src/post-threads.js --host-only",
+    "token": "node src/get-token.js"
+  }
+}

@@ -1,0 +1,23 @@
+name: init-tables
+# Tự tạo bảng mẫu "14.7 Đăng Threads (Meta)" trong Base (idempotent).
+# Chạy tay (Actions -> Run workflow) hoặc gọi HTTP repository_dispatch {"event_type":"init-tables"}.
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [init-tables]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Tạo bảng
+        run: node src/init-tables.js
+        env:
+          LARK_APP_ID: ${{ vars.LARK_APP_ID }}
+          LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
+          LARK_BASE_ID: ${{ vars.LARK_BASE_ID }}
+          LARK_DOMAIN: ${{ vars.LARK_DOMAIN }}
+          THREADS_TABLE_NAME: ${{ vars.THREADS_TABLE_NAME }}

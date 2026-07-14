@@ -1,0 +1,18 @@
+{
+  "table_name": "14.7 Đăng Threads (Meta)",
+  "default_view_name": "Hàng chờ đăng",
+  "primary_field": "Nội dung",
+  "note": "Schema bảng đăng Threads. type: 1=Text, 2=Number, 3=SingleSelect, 5=DateTime, 7=Checkbox, 15=URL, 17=Attachment",
+  "fields": [
+    { "field_name": "Nội dung", "type": 1, "desc": "Nội dung bài (<=500 ký tự). Là cột chính (primary)." },
+    { "field_name": "Loại", "type": 3, "options": ["Text", "Ảnh", "Video"], "desc": "Bỏ trống thì tự đoán theo file/URL." },
+    { "field_name": "Ảnh/video (Lark)", "type": 17, "desc": "Thả file thẳng vào đây — script tự host lên URL công khai." },
+    { "field_name": "Ảnh URL (công khai)", "type": 15, "desc": "Hoặc dán sẵn link ảnh/video công khai." },
+    { "field_name": "Lịch đăng", "type": 5, "desc": "Trống hoặc đã tới giờ mới đăng." },
+    { "field_name": "Trạng thái", "type": 3, "options": ["Chờ đăng", "Thành công", "Thất bại"], "desc": "Khác 'Thành công' + đủ điều kiện thì đăng." },
+    { "field_name": "Link bài đăng", "type": 15, "desc": "Permalink Threads (script tự ghi)." },
+    { "field_name": "Threads post ID", "type": 1 },
+    { "field_name": "Log", "type": 1 },
+    { "field_name": "Đăng lúc", "type": 5 }
+  ]
+}
