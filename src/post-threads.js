@@ -85,9 +85,17 @@ async function permalink(mediaId, tok) {
 }
 // Comment đầu = reply TEXT vào chính bài (giống "Comment ebook" của 14.3).
 async function postReply(uid, tok, replyToId, text) {
-  const cont = await thFetch(`${TH}/${uid}/threads`, { media_type: 'TEXT', text: text.slice(0, 500), reply_to_id: replyToId, access_token: tok }, 'POST');
-  if (!cont.id) throw new Error('không tạo được reply container');
-  return publish(uid, tok, cont.id);
+  // Chờ Threads propagate bài vừa đăng rồi mới reply (tránh lỗi 427900 "resource does not exist").
+  await sleep(6000);
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const cont = await thFetch(`${TH}/${uid}/threads`, { media_type: 'TEXT', text: text.slice(0, 500), reply_to_id: replyToId, access_token: tok }, 'POST');
+      if (!cont.id) throw new Error('không tạo được reply container');
+      return await publish(uid, tok, cont.id);
+    } catch (e) { lastErr = e; await sleep(6000); }
+  }
+  throw lastErr;
 }
 function scheduleMs(cell) {
   if (cell == null) return null; if (typeof cell === 'number') return cell;
