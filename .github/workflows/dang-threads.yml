@@ -14,9 +14,9 @@ on:
         default: false
   repository_dispatch:
     types: [dang-threads]
-  # Bật lịch tự động (giờ UTC). Ví dụ 01:00 & 12:00 UTC = 08:00 & 19:00 giờ VN.
-  # schedule:
-  #   - cron: '0 1,12 * * *'
+  # Lịch tự động: 01:00 & 12:00 UTC = 08:00 & 19:00 giờ VN. Chỉ đăng dòng "Chờ đăng".
+  schedule:
+    - cron: '0 1,12 * * *'
 jobs:
   run:
     runs-on: ubuntu-latest
